@@ -5,6 +5,9 @@ import (
 	"github.com/alifdwt/techtest-unsia-be/internal/handler"
 	"github.com/alifdwt/techtest-unsia-be/internal/service"
 	"github.com/gofiber/fiber/v2"
+
+	_ "github.com/alifdwt/techtest-unsia-be/docs"
+	"github.com/gofiber/swagger"
 )
 
 func RegisterRoutes(app *fiber.App, q *db.Queries) {
@@ -12,4 +15,6 @@ func RegisterRoutes(app *fiber.App, q *db.Queries) {
 	quizHandler := handler.NewQuizHandler(quizService)
 
 	app.Post("/start", quizHandler.StartQuiz)
+
+	app.Get("/swagger/*", swagger.HandlerDefault)
 }

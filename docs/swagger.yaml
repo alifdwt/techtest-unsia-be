@@ -1,0 +1,70 @@
+definitions:
+  handler.APIResponse:
+    properties:
+      data: {}
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  handler.startQuizRequest:
+    properties:
+      quiz_id:
+        type: string
+      user_id:
+        type: string
+    type: object
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: API for managing LMS
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Technical Test Unsia API
+  version: "1.0"
+paths:
+  /start:
+    post:
+      consumes:
+      - application/json
+      description: Initialize quiz attempt and fetch questions
+      parameters:
+      - description: Start quiz request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.startQuizRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.APIResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handler.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.APIResponse'
+      summary: Start quiz attempt
+      tags:
+      - Quiz
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and the token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
