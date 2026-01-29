@@ -19,6 +19,7 @@ type Querier interface {
 	GetQuizByID(ctx context.Context, id pgtype.UUID) (Quiz, error)
 	GetQuizDurationByAttemptID(ctx context.Context, id pgtype.UUID) (int32, error)
 	HasUngradedEssay(ctx context.Context, attemptID pgtype.UUID) (bool, error)
+	ListAnswersWithQuestions(ctx context.Context, attemptID pgtype.UUID) ([]ListAnswersWithQuestionsRow, error)
 	ListOptionsByQuestionID(ctx context.Context, questionID pgtype.UUID) ([]ListOptionsByQuestionIDRow, error)
 	ListQuestionsByQuizID(ctx context.Context, quizID pgtype.UUID) ([]Question, error)
 	UpdateAttemptStatus(ctx context.Context, arg UpdateAttemptStatusParams) error

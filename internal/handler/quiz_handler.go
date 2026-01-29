@@ -135,3 +135,40 @@ func (h *QuizHandler) Submit(c *fiber.Ctx) error {
 
 	return Success(c, msg, nil)
 }
+
+// GetResult godoc
+// @Summary Get quiz result
+// @Description Get quiz score and answers (partial or final)
+// @Tags Quiz
+// @Produce json
+// @Param attempt_id query string true "Quiz attempt ID"
+// @Success 200 {object} handler.APIResponse
+// @Failure 400 {object} handler.APIResponse
+// @Failure 403 {object} handler.APIResponse
+// @Failure 404 {object} handler.APIResponse
+// @Router /result [get]
+func (h *QuizHandler) GetResult(c *fiber.Ctx) error {
+	attemptIDStr := c.Query("attempt_id")
+	if attemptIDStr == "" {
+		return Fail(c, fiber.StatusBadRequest, "attempt_id is required")
+	}
+
+	attemptID, err := uuid.Parse(attemptIDStr)
+	if err != nil {
+		return Fail(c, fiber.StatusBadRequest, "invalid attempt_id")
+	}
+
+	result, err := h.service.GetResult(c.Context(), attemptID)
+	if err != nil {
+		switch err.Error() {
+		case "attempt not submitted":
+			return Fail(c, fiber.StatusForbidden, err.Error())
+		case "attempt not found":
+			return Fail(c, fiber.StatusNotFound, err.Error())
+		default:
+			return Fail(c, fiber.StatusInternalServerError, "failed to get result")
+		}
+	}
+
+	return Success(c, "quiz result", result)
+}

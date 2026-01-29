@@ -40,6 +40,37 @@ info:
   title: Technical Test Unsia API
   version: "1.0"
 paths:
+  /result:
+    get:
+      description: Get quiz score and answers (partial or final)
+      parameters:
+      - description: Quiz attempt ID
+        in: query
+        name: attempt_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.APIResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handler.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.APIResponse'
+      summary: Get quiz result
+      tags:
+      - Quiz
   /start:
     post:
       consumes:

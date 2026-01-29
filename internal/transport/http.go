@@ -15,6 +15,8 @@ func RegisterRoutes(app *fiber.App, q *db.Queries) {
 	quizHandler := handler.NewQuizHandler(quizService)
 
 	app.Post("/start", quizHandler.StartQuiz)
+	app.Post("/submit", quizHandler.Submit)
+	app.Get("/result", quizHandler.GetResult)
 
 	app.Get("/swagger/*", swagger.HandlerDefault)
 }

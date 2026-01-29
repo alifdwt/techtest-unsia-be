@@ -148,6 +148,86 @@ func (s *QuizService) SubmitAnswer(
 	return nil
 }
 
+func (s *QuizService) GetResult(
+	ctx context.Context,
+	attemptID uuid.UUID,
+) (*ResultDTO, error) {
+
+	pgAttemptID := toPgUUID(attemptID)
+
+	attempt, err := s.q.GetAttemptByID(ctx, pgAttemptID)
+	if err != nil {
+		return nil, errors.New("attempt not found")
+	}
+
+	// if attempt.Status == "in_progress" {
+	// 	return nil, errors.New("attempt not submitted")
+	// }
+
+	rows, err := s.q.ListAnswersWithQuestions(ctx, pgAttemptID)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &ResultDTO{
+		Status: attempt.Status,
+	}
+
+	var autoScore int32
+	var manualScore int32
+
+	for _, r := range rows {
+		var score *int32
+		if r.Score.Valid {
+			v := r.Score.Int32
+			score = &v
+		}
+
+		dto := AnswerResultDTO{
+			QuestionID: uuid.UUID(r.QuestionID.Bytes),
+			Question:   r.QuestionText,
+			Type:       r.Type,
+			MaxScore:   r.Points,
+			Score:      score,
+		}
+
+		if r.Type == "multiple_choice" {
+			if r.SelectedOptionText.Valid {
+				dto.UserAnswer = r.SelectedOptionText.String
+			}
+			if r.IsCorrect.Bool {
+				autoScore += r.Points
+				if r.SelectedOptionText.Valid {
+					c := r.SelectedOptionText.String
+					dto.CorrectAnswer = &c
+				}
+
+			}
+		} else {
+			dto.UserAnswer = r.EssayAnswer.String
+			if r.Score.Valid {
+				manualScore += r.Score.Int32
+			}
+
+		}
+
+		result.Answers = append(result.Answers, dto)
+	}
+
+	result.Score.Auto = autoScore
+
+	if attempt.Status == "graded" {
+		result.Score.Manual = &manualScore
+		final := autoScore + manualScore
+		result.Score.Final = &final
+	} else {
+		result.Score.Manual = nil
+		result.Score.Final = nil
+	}
+
+	return result, nil
+}
+
 func (s *QuizService) loadQuestions(
 	ctx context.Context,
 	pgQuizID pgtype.UUID,
