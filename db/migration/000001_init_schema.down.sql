@@ -1,0 +1,6 @@
+DROP TABLE IF EXISTS manual_grades;
+DROP TABLE IF EXISTS answers;
+DROP TABLE IF EXISTS quiz_attempts;
+DROP TABLE IF EXISTS options;
+DROP TABLE IF EXISTS questions;
+DROP TABLE IF EXISTS quizzes;
