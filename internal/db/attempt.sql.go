@@ -64,6 +64,71 @@ func (q *Queries) CreateQuizAttempt(ctx context.Context, arg CreateQuizAttemptPa
 	return i, err
 }
 
+const getActiveAttempt = `-- name: GetActiveAttempt :one
+SELECT id, quiz_id, user_id, attempt_number, started_at, finished_at, status
+FROM quiz_attempts
+WHERE quiz_id = $1
+  AND user_id = $2
+  AND status = 'in_progress'
+ORDER BY started_at DESC
+LIMIT 1
+`
+
+type GetActiveAttemptParams struct {
+	QuizID pgtype.UUID `json:"quiz_id"`
+	UserID pgtype.UUID `json:"user_id"`
+}
+
+func (q *Queries) GetActiveAttempt(ctx context.Context, arg GetActiveAttemptParams) (QuizAttempt, error) {
+	row := q.db.QueryRow(ctx, getActiveAttempt, arg.QuizID, arg.UserID)
+	var i QuizAttempt
+	err := row.Scan(
+		&i.ID,
+		&i.QuizID,
+		&i.UserID,
+		&i.AttemptNumber,
+		&i.StartedAt,
+		&i.FinishedAt,
+		&i.Status,
+	)
+	return i, err
+}
+
+const getAttemptByID = `-- name: GetAttemptByID :one
+SELECT id, quiz_id, user_id, attempt_number, started_at, finished_at, status
+FROM quiz_attempts
+WHERE id = $1
+`
+
+func (q *Queries) GetAttemptByID(ctx context.Context, id pgtype.UUID) (QuizAttempt, error) {
+	row := q.db.QueryRow(ctx, getAttemptByID, id)
+	var i QuizAttempt
+	err := row.Scan(
+		&i.ID,
+		&i.QuizID,
+		&i.UserID,
+		&i.AttemptNumber,
+		&i.StartedAt,
+		&i.FinishedAt,
+		&i.Status,
+	)
+	return i, err
+}
+
+const getQuizDurationByAttemptID = `-- name: GetQuizDurationByAttemptID :one
+SELECT q.duration_seconds
+FROM quizzes q
+JOIN quiz_attempts qa ON qa.quiz_id = q.id
+WHERE qa.id = $1
+`
+
+func (q *Queries) GetQuizDurationByAttemptID(ctx context.Context, id pgtype.UUID) (int32, error) {
+	row := q.db.QueryRow(ctx, getQuizDurationByAttemptID, id)
+	var duration_seconds int32
+	err := row.Scan(&duration_seconds)
+	return duration_seconds, err
+}
+
 const updateAttemptStatus = `-- name: UpdateAttemptStatus :exec
 UPDATE quiz_attempts
 SET status = $2,

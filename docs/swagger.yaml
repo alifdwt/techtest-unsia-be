@@ -14,6 +14,19 @@ definitions:
       user_id:
         type: string
     type: object
+  handler.submitRequest:
+    properties:
+      attempt_id:
+        type: string
+      essay_answer:
+        type: string
+      final:
+        type: boolean
+      question_id:
+        type: string
+      selected_option_id:
+        type: string
+    type: object
 info:
   contact:
     email: support@swagger.io
@@ -59,6 +72,47 @@ paths:
           schema:
             $ref: '#/definitions/handler.APIResponse'
       summary: Start quiz attempt
+      tags:
+      - Quiz
+  /submit:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Autosave answer per question or finalize quiz submission.
+        Multiple choice answers are auto-graded.
+        Essay answers will be marked as waiting assessment.
+      parameters:
+      - description: Submit answer payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.submitRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Answer saved or quiz submitted
+          schema:
+            $ref: '#/definitions/handler.APIResponse'
+        "400":
+          description: Invalid request or validation error
+          schema:
+            $ref: '#/definitions/handler.APIResponse'
+        "403":
+          description: Attempt expired
+          schema:
+            $ref: '#/definitions/handler.APIResponse'
+        "409":
+          description: Attempt already submitted
+          schema:
+            $ref: '#/definitions/handler.APIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.APIResponse'
+      summary: Submit or autosave quiz answer
       tags:
       - Quiz
 securityDefinitions:

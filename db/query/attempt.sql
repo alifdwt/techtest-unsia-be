@@ -25,3 +25,23 @@ SET status = $2,
       ELSE finished_at
     END
 WHERE id = $1;
+
+-- name: GetAttemptByID :one
+SELECT *
+FROM quiz_attempts
+WHERE id = $1;
+
+-- name: GetQuizDurationByAttemptID :one
+SELECT q.duration_seconds
+FROM quizzes q
+JOIN quiz_attempts qa ON qa.quiz_id = q.id
+WHERE qa.id = $1;
+
+-- name: GetActiveAttempt :one
+SELECT *
+FROM quiz_attempts
+WHERE quiz_id = $1
+  AND user_id = $2
+  AND status = 'in_progress'
+ORDER BY started_at DESC
+LIMIT 1;

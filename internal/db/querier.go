@@ -14,7 +14,10 @@ type Querier interface {
 	AutoGradeMultipleChoice(ctx context.Context, id pgtype.UUID) error
 	CountUserAttempts(ctx context.Context, arg CountUserAttemptsParams) (int64, error)
 	CreateQuizAttempt(ctx context.Context, arg CreateQuizAttemptParams) (QuizAttempt, error)
+	GetActiveAttempt(ctx context.Context, arg GetActiveAttemptParams) (QuizAttempt, error)
+	GetAttemptByID(ctx context.Context, id pgtype.UUID) (QuizAttempt, error)
 	GetQuizByID(ctx context.Context, id pgtype.UUID) (Quiz, error)
+	GetQuizDurationByAttemptID(ctx context.Context, id pgtype.UUID) (int32, error)
 	HasUngradedEssay(ctx context.Context, attemptID pgtype.UUID) (bool, error)
 	ListOptionsByQuestionID(ctx context.Context, questionID pgtype.UUID) ([]ListOptionsByQuestionIDRow, error)
 	ListQuestionsByQuizID(ctx context.Context, quizID pgtype.UUID) ([]Question, error)

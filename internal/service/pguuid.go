@@ -11,3 +11,10 @@ func toPgUUID(id uuid.UUID) pgtype.UUID {
 		Valid: true,
 	}
 }
+
+func toPgText(s string) pgtype.Text {
+	return pgtype.Text{
+		String: s,
+		Valid:  true,
+	}
+}
